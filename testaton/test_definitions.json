@@ -72,6 +72,7 @@
             "table" : "cinema-file", 
             "field" : "ID_CINE"
         },
+
         "customer-transaction-fk" : {
             "description" : "customer vs transaction test",
             "test_type" : "foreign_key",
@@ -80,6 +81,7 @@
             "child_table" : "historia-psql", 
             "child_field" : "person_id"
          }
+
     }
 
 }

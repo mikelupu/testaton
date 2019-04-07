@@ -7,6 +7,27 @@ from pyspark.sql import functions as sf
 import pandas as pd
 import sqlalchemy as sql
 
+import sys
+sys.path.append('../../../dtest')
+from dtest.dtest import Dtest
+
+#Setup the data testing framework
+connectionConfig = {
+    "host": "localhost",
+    "username": None,
+    "password": None,
+    "exchange": "test.dtest",
+    "exchange_type": "fanout"
+}
+metadata = {
+    "description": "Execution of the test_definition.json",
+    "topic": "test.dtest",
+    "ruleSet": "Test a couple of files and tables",
+    "dataSet": "Plenty to test files"
+}
+
+dt = Dtest(connectionConfig, metadata)
+
 class Connection:
     """An object to represent a connection to a dataset, e.g. JDBC string, file location, etc"""
     def __init__(self, connection_def):
@@ -105,6 +126,15 @@ class Test:
                 print("Test: " + self.description + ";    PASSED")
             else:
                 print("Test: " + self.description + ";    FAILED")
+            dt.assertTrue(len(result) == 0, self.description)
+
+        if self.type == 'foreign_key':
+            if result['result_count'][0] == 0:
+                print("Test: " + self.description + ";  PASSED")
+            else:
+                print("Test: " + self.description + ";  FAILED")
+            dt.assertTrue(result['result_count'][0] == 0, self.description)
+
 
 def process_connections(connection_definition):
     connections = {}
@@ -124,6 +154,13 @@ def process_tests(dataset_dict, tests_definition):
         tests[t_key] = Test(dataset_dict, tests_definition[t_key])
     return tests
 
+
+
+
+
+
+#### MAIN RUN FILE ####
+
 import json 
 with open('test_definitions.json', 'r') as read_file:
     definition = json.load(read_file)
@@ -139,3 +176,5 @@ for t in tests_dict:
 print(connection_dict)
 print(datasets_dict)
 print(tests_dict)
+
+dt.finish()

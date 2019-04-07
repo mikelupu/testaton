@@ -17,7 +17,7 @@ Tests for a foreign key constraint relationship
 """
 def generate_fk_sql(dataset, test_def):
     q = """
-     select count(1) from (
+     select count(1) as result_count from (
         select {child_field} from {child_table}
         except
         select {parent_field} from {parent_table}
