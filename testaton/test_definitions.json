@@ -20,7 +20,7 @@
         "cinema-file" : {
             "type" : "file-parquet", 
             "connection" : "local-fs",
-            "table-name" : "transaction", 
+            "table-name" : "cinema", 
             "location" : "/Users/farrugia michael/Documents/Data/Cinema/refined/iyvdw_cine/iyvdw_cine_2019-03-12/"
         }, 
         "historia-psql" : { 
@@ -71,8 +71,15 @@
             "test_type" : "unique", 
             "table" : "cinema-file", 
             "field" : "ID_CINE"
-        }
-
+        },
+        "customer-transaction-fk" : {
+            "description" : "customer vs transaction test",
+            "test_type" : "foreign_key",
+            "parent_table" : "customer-psql", 
+            "parent_field" : "customer_id", 
+            "child_table" : "historia-psql", 
+            "child_field" : "person_id"
+         }
     }
 
 }

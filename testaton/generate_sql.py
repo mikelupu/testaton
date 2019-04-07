@@ -19,9 +19,9 @@ def generate_fk_sql(dataset, test_def):
     q = """
      select count(1) from (
         select {child_field} from {child_table}
-        minus
+        except
         select {parent_field} from {parent_table}
-    )""".format(child_field=test_def['child_field'], child_table=dataset[test_def['child_table']].table_name, 
+    ) a""".format(child_field=test_def['child_field'], child_table=dataset[test_def['child_table']].table_name, 
                 parent_field=test_def['parent_field'], parent_table=dataset[test_def['parent_table']].table_name)
     return q
 
