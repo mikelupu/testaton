@@ -35,6 +35,7 @@ from dtest.dtest import Dtest
 
 - [x] add timing calculation to the execution of the test
 - [ ] complete Dtest integration to the suite (sending the message) 
+- [ ] add code tests
 - [ ] remove username and password from test file
 - [ ] add a score function test against two variables from two data sets
 - [ ] filter : a number is out of range (e.g. mileage < 0)
