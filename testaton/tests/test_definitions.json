@@ -11,7 +11,7 @@
 
 
     "data-definitions" : {
-        "customer-table" : {                
+        "historia-file" : {                
             "type" : "file-csv", 
             "connection" : "local-fs",
             "table-name" : "historia",
@@ -80,6 +80,13 @@
             "parent_field" : "customer_id", 
             "child_table" : "historia-psql", 
             "child_field" : "person_id"
+         },
+
+         "gender-null" : {
+             "description" : "gender null",
+             "test_type" : "filter",
+             "table" : "historia-file",
+             "filter" : "genero is null"
          }
 
     }

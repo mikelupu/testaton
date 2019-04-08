@@ -1,7 +1,5 @@
-"""
-Tests for uniqueness of a field, using a count and group by
-"""
 def generate_uniqueness_sql(dataset, test_def):
+    """Tests for uniqueness of a field, using a count and group by"""
     q = "select " + test_def['field'] + ", count(1) as dupes " + "from " + dataset[test_def['table']].table_name
     if 'filter' in test_def:
         q += " where " + test_def['filter'] 
@@ -11,11 +9,14 @@ def generate_uniqueness_sql(dataset, test_def):
     q += " limit 10"
     return q
 
+def generate_filter_sql(dataset, test_def):
+    """Simple filter test"""
+    q = "select count(1) as result_count from " + dataset[test_def['table']].table_name
+    q += " where " + test_def['filter'] 
+    return q
 
-"""
-Tests for a foreign key constraint relationship
-"""
 def generate_fk_sql(dataset, test_def):
+    """Tests for a foreign key constraint relationship"""
     q = """
      select count(1) as result_count from (
         select {child_field} from {child_table}

@@ -20,19 +20,29 @@ The tests define the tests that can be executed. Currently there are 2 types of 
 * Postgres and table setup
 
 
-## Example execution 
+## Execution 
+
+* Fix this part of the tests_processor.py script according to your installation of Dtest 
+```
+sys.path.append('../../../dtest')
+from dtest.dtest import Dtest
+```
 
 * `python tests_processor.py ./tests/test_definitions.json`
 
 
 ## TODO
 
-- [x] add Dtest integration to the suite
+- [x] add timing calculation to the execution of the test
+- [ ] complete Dtest integration to the suite (sending the message) 
+- [ ] remove username and password from test file
 - [ ] add a score function test against two variables from two data sets
 - [ ] filter : a number is out of range (e.g. mileage < 0)
 - [ ] count of yesterday's record > today + 10%
-- [ ] count of null fields > amount
+- [x] count of null fields > amount
+- [ ] clean up code
 - [ ] create generic sql test
+- [ ] cross environment test execution (e.g. a table in a database and a file in parquet)
 ```
         "raw-query-test-example" : {
             "description" : "NOT IMPLEMENTED!! example of a raw sql test", 

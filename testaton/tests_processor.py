@@ -1,4 +1,4 @@
-from generate_sql import generate_uniqueness_sql, generate_fk_sql
+from generate_sql import generate_uniqueness_sql, generate_fk_sql, generate_filter_sql
 from test_executor import run_in_db, run_in_spark
 
 from pyspark.sql import SparkSession
@@ -8,6 +8,8 @@ import pandas as pd
 import sqlalchemy as sql
 
 import argparse
+
+import time
 
 import sys
 sys.path.append('../../../dtest')
@@ -105,6 +107,11 @@ class Test:
                 self.execution_env = get_execution_environment(self.dataset[0])
             self.sql = generate_fk_sql(dataset_dict, tests_definition) 
 
+        if self.type == 'filter':
+            self.dataset = [dataset_dict[tests_definition['table']]]
+            self.execution_env = get_execution_environment(self.dataset[0])
+            self.sql = generate_filter_sql(dataset_dict, tests_definition) 
+
 
     #Executes a test against a database
     def execute_db(self):
@@ -116,26 +123,33 @@ class Test:
     def execute_file(self):
         return run_in_spark(self.sql)
 
-    def execute(self):
-        if self.execution_env['type'] == 'db':
-            result = self.execute_db()
-        if self.execution_env['type'] == 'file':
-            result = self.execute_file()
-
-        if self.type == 'unique':
-            #TODO incorporate this with DTest
+    def process_result(self, test_type, result, duration):
+        """Asserts the result of the test"""
+        if test_type == 'unique':
+            #TODO incorporate this with DTest - and inject duration
+            #Idea: could these conditions be also defined as part of the test
             if len(result) == 0:
                 print("Test: " + self.description + ";    PASSED")
             else:
                 print("Test: " + self.description + ";    FAILED")
             dt.assertTrue(len(result) == 0, self.description)
 
-        if self.type == 'foreign_key':
+        if test_type == 'foreign_key' or test_type == 'filter':
             if result['result_count'][0] == 0:
                 print("Test: " + self.description + ";  PASSED")
             else:
                 print("Test: " + self.description + ";  FAILED")
             dt.assertTrue(result['result_count'][0] == 0, self.description)
+
+    def execute(self):
+        start_time = time.time()
+        if self.execution_env['type'] == 'db':
+            result = self.execute_db()
+        if self.execution_env['type'] == 'file':
+            result = self.execute_file()
+        end_time = time.time()
+        duration = end_time - start_time
+        self.process_result(self.type, result, duration)
 
 
 def process_connections(connection_definition):
