@@ -4,7 +4,7 @@ readme = open('README.md').read().strip()
 
 setup(
     name='testaton',
-    version='0.1.0',
+    version='0.1.1',
     license='MIT',
     author='Michael Farrugia',
     author_email='mike.farrugia@gmail.com',
