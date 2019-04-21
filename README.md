@@ -18,32 +18,24 @@ The tests define the tests that can be executed. Currently there are 2 types of 
 
 * Local installation of spark
 * Postgres and table setup
-
+* dtest package
 
 ## Execution 
 
-* Fix this part of the tests_processor.py script according to your installation of Dtest 
-```
-sys.path.append('../../../dtest')
-from dtest.dtest import Dtest
-```
-
-* `python tests_processor.py ./tests/test_definitions.json`
+* `python testaton.py /tests/test_definitions.json`
 
 
 ## TODO
 
-- [x] add timing calculation to the execution of the test
-- [ ] complete Dtest integration to the suite (sending the message) 
+- [ ] json configuration validator (syntax)
+- [ ] validation of the existance of files, configurations, etc (semantics)
 - [ ] add code tests
 - [ ] remove username and password from test file
-- [ ] add a score function test against two variables from two data sets
 - [ ] filter : a number is out of range (e.g. mileage < 0)
 - [ ] count of yesterday's record > today + 10%
-- [x] count of null fields > amount
 - [ ] clean up code
-- [ ] create generic sql test
 - [ ] cross environment test execution (e.g. a table in a database and a file in parquet)
+- [ ] create generic sql test
 ```
         "raw-query-test-example" : {
             "description" : "NOT IMPLEMENTED!! example of a raw sql test", 
@@ -53,3 +45,11 @@ from dtest.dtest import Dtest
             "validation" : "df['error_cells] < 100"
         }
 ```
+
+## Done
+
+- [x] add timing calculation to the execution of the test
+- [x] count of null fields > amount 
+- [x] complete Dtest integration to the suite (sending the message) 
+- [x] add a score function test against two variables from two data sets
+
