@@ -1,0 +1,107 @@
+{
+    "connections" : {
+        "postgres-local" : {
+            "type" : "JDBC connection", 
+            "connection-string": "postgresql://postgres:postgres@localhost:5432/postgres"
+        },
+        "local-fs" : {
+            "type" : "File system"
+        }
+    }, 
+
+
+    "data-definitions" : {
+        "historia-file" : {                
+            "type" : "file-csv", 
+            "connection" : "local-fs",
+            "table-name" : "historia",
+            "location" : "/Users/farrugia michael/Documents/Data/Cinema/HISTORIA_CC_2019-02-22_converted.csv"
+        }, 
+        "cinema-file" : {
+            "type" : "file-parquet", 
+            "connection" : "local-fs",
+            "table-name" : "cinema", 
+            "location" : "/Users/farrugia michael/Documents/Data/Cinema/refined/iyvdw_cine/iyvdw_cine_2019-03-12/"
+        }, 
+        "point-balance-file" : {
+            "type" : "file-csv",
+            "connection" : "local-fs",
+            "table-name" : "point_balance_combined",
+            "location" : "/Users/farrugia michael/Documents/Data/Cinema/point_balance_combined.csv"
+        },
+        "historia-psql" : { 
+            "type" : "db-table", 
+            "connection" : "postgres-local",
+            "table-name" : "public.historia_cc",
+            "location" : ""
+        },
+        "product-psql" : { 
+            "type" : "db-table", 
+            "connection" : "postgres-local",
+            "table-name" : "public.t_product", 
+            "location" : ""
+        },
+        "customer-psql" : { 
+            "type" : "db-table", 
+            "connection" : "postgres-local",
+            "table-name" : "public.t_customer", 
+            "location" : ""
+        },        
+        "cust-view-psql" : {
+            "type" : "db-query", 
+            "connection" : "postgres-local",
+            "table-name" : "public.temp_customer_selection",
+            "query" : "select customer_id from t_customer",
+            "location" : ""
+        }
+    },
+
+    "tests" : { 
+
+        "product-id-uniqueness" : {
+            "description" : "product_id unique check",
+            "test_type" : "unique",
+            "dataset" : "product-psql", 
+            "field" : "product_id"
+        },
+
+        "customer-id-uniqueness" : {
+            "description" : "customer id uniqueness check",
+            "test_type" : "unique",
+            "dataset" : "customer-psql", 
+            "field" : "customer_id"
+        }, 
+
+        "cine-id-uniqueness" : {
+            "description" : "unique cinemas in parquet file",
+            "test_type" : "unique", 
+            "dataset" : "cinema-file", 
+            "field" : "ID_CINE"
+        },
+
+        "customer-transaction-fk" : {
+            "description" : "customer vs transaction test",
+            "test_type" : "foreign_key",
+            "parent_dataset" : "customer-psql", 
+            "parent_field" : "customer_id", 
+            "child_dataset" : "historia-psql", 
+            "child_field" : "person_id"
+         },
+
+         "gender-null" : {
+             "description" : "gender null",
+             "test_type" : "filter",
+             "dataset" : "historia-file",
+             "filter" : "genero is null"
+         },
+
+         "points-balance" : {
+            "description" : "Compare point balance from EDW and balance TCC file",
+            "test_type" : "field_accuracy", 
+            "dataset" : "point-balance-file",
+            "fields" : ["BALANCETCC_POINTS", "POINTS"]
+        }
+
+    }
+
+}
