@@ -28,5 +28,4 @@ def main(args=None):
     print(datasets_dict)
     print(tests_dict)
 
-    # TODO this is breaking the call
-    dt.publish()
+
