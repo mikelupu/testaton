@@ -100,6 +100,7 @@ class Test:
     def __init__(self, dataset_dict, test_definition):
         self.description = test_definition['description']
         self.type = test_definition['test_type']
+        self.severity = test_definition['severity']
         self.definition = test_definition
 
         if self.type == 'unique':
@@ -154,7 +155,7 @@ class Test:
                 print("Test: " + self.description + ";    PASSED")
             else:
                 print("Test: " + self.description + ";    FAILED")
-            dt.assert_that(result, has_length(0), self.description)
+            dt.assert_that(result, has_length(0), self.description, self.severity)
 
         if test_type == 'foreign_key' or test_type == 'filter':
             if result['result_count'][0] == 0:
@@ -162,7 +163,7 @@ class Test:
             else:
                 print("Test: " + self.description + ";  FAILED")
             dt.assert_that(result['result_count'][0],
-                           equal_to(0), self.description)
+                           equal_to(0), self.description, self.severity)
         
         if test_type == 'field_accuracy':
             # ensure that the variable values are integers
@@ -170,7 +171,7 @@ class Test:
             result.iloc[:, 1] = result.iloc[:, 1].astype('float')
             ans = score(result.iloc[:,0].values, result.iloc[:,1].values)
             # TODO this will need to be replaced by the proper dtest function
-            dt.assert_that(pd.DataFrame(data=[ans]), has_length(0), self.description)
+            dt.assert_that(pd.DataFrame(data=[ans]), has_length(0), self.description, self.severity)
 
         dt.publish()
 
