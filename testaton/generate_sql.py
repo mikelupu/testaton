@@ -1,6 +1,6 @@
 def generate_uniqueness_sql(dataset, test_def):
     """Tests for uniqueness of a field, using a count and group by"""
-    q = "select " + test_def['field'] + ", count(1) as dupes " + "from " + dataset[test_def['table']].table_name
+    q = "select " + test_def['field'] + ", count(1) as dupes " + "from " + dataset[test_def['dataset']].table_name
     if 'filter' in test_def:
         q += " where " + test_def['filter'] 
     q += " group by " + test_def['field']
@@ -11,7 +11,7 @@ def generate_uniqueness_sql(dataset, test_def):
 
 def generate_filter_sql(dataset, test_def):
     """Simple filter test"""
-    q = "select count(1) as result_count from " + dataset[test_def['table']].table_name
+    q = "select count(1) as result_count from " + dataset[test_def['dataset']].table_name
     q += " where " + test_def['filter'] 
     return q
 
@@ -22,10 +22,15 @@ def generate_fk_sql(dataset, test_def):
         select {child_field} from {child_table}
         except
         select {parent_field} from {parent_table}
-    ) a""".format(child_field=test_def['child_field'], child_table=dataset[test_def['child_table']].table_name, 
-                parent_field=test_def['parent_field'], parent_table=dataset[test_def['parent_table']].table_name)
+    ) a""".format(child_field=test_def['child_field'], child_table=dataset[test_def['child_dataset']].table_name, 
+                parent_field=test_def['parent_field'], parent_table=dataset[test_def['parent_dataset']].table_name)
     return q
 
+def generate_field_sql(dataset, test_def):
+    """Pulls out the two required fields to be compared for accuracy"""
+    q = "select {field1}, {field2} from {table}".format(field1=test_def['fields'][0],
+    field2=test_def['fields'][1], table=dataset[test_def['dataset']].table_name)
+    return q
 
 #TODO Setup the tests again
 

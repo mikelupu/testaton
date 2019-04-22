@@ -1,5 +1,7 @@
-from .generate_sql import generate_uniqueness_sql, generate_fk_sql, generate_filter_sql
+from .generate_sql import generate_uniqueness_sql, generate_fk_sql, generate_filter_sql, generate_field_sql
 from .test_executor import run_in_db, run_in_spark
+from .common_functions import score
+
 
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as sf
@@ -10,14 +12,15 @@ import sqlalchemy as sql
 import time
 
 from hamcrest import has_length, equal_to
+
 from dtest import Dtest
 
 # Setup the data testing framework
 connectionConfig = {
     "host": "localhost",
-    "username": None,
-    "password": None,
-    "exchange": "test.dtest",
+    "username": "guest",
+    "password": "guest",
+    "exchange": "logs",
     "exchange_type": "fanout"
 }
 metadata = {
@@ -61,6 +64,8 @@ class Dataset:
             viewSql = "create or replace view " + self.table_name + " as " + \
                 dataset_definition['query']
             engine = sql.create_engine(self.connection.connection_string)
+            if viewSql.find(';') != -1:
+                raise Exception("Semi-colons in sql statements are not supported")
             engine.execute(viewSql)
 
         if self.type[0:4] == 'file':
@@ -90,34 +95,47 @@ def get_execution_environment(dataset):
 
 
 class Test:
-    def __init__(self, dataset_dict, tests_definition):
-        self.description = tests_definition['description']
-        self.type = tests_definition['test_type']
-        self.definition = tests_definition
+    """Defines a single test to be executed"""
+
+    def __init__(self, dataset_dict, test_definition):
+        self.description = test_definition['description']
+        self.type = test_definition['test_type']
+        self.definition = test_definition
 
         if self.type == 'unique':
-            self.dataset = [dataset_dict[tests_definition['table']]]
+            self.dataset = [dataset_dict[test_definition['dataset']]]
             self.execution_env = get_execution_environment(self.dataset[0])
-            self.sql = generate_uniqueness_sql(dataset_dict, tests_definition)
+            self.sql = generate_uniqueness_sql(dataset_dict, test_definition)
 
         if self.type == 'foreign_key':
-            self.dataset = [dataset_dict[tests_definition['parent_table']],
-                            dataset_dict[tests_definition['child_table']]]
+            self.dataset = [dataset_dict[test_definition['parent_dataset']],
+                            dataset_dict[test_definition['child_dataset']]]
             if len(set([get_execution_environment(d)['type'] for d in self.dataset])) > 1:
                 print(
                     "Operation across multiple types of datasets not currently supported")
                 exit(-1)
             else:
                 self.execution_env = get_execution_environment(self.dataset[0])
-            self.sql = generate_fk_sql(dataset_dict, tests_definition)
+            self.sql = generate_fk_sql(dataset_dict, test_definition)
 
         if self.type == 'filter':
-            self.dataset = [dataset_dict[tests_definition['table']]]
+            self.dataset = [dataset_dict[test_definition['dataset']]]
             self.execution_env = get_execution_environment(self.dataset[0])
-            self.sql = generate_filter_sql(dataset_dict, tests_definition)
+            self.sql = generate_filter_sql(dataset_dict, test_definition)
+
+        if self.type == 'field_accuracy':
+            self.dataset = [dataset_dict[test_definition['dataset']]]
+            self.execution_env = get_execution_environment(self.dataset[0])
+            self.sql = generate_field_sql(dataset_dict, test_definition)
+
+        self.validate_test()
+
+    def validate_test(self):
+        """Validates that the test does not contain anything stupid"""
+        if self.sql.find(';') != -1:
+            raise Exception("Semi-colons in sql statements are not supported")
 
     # Executes a test against a database
-
     def execute_db(self):
         print(self.sql)
         print(self.execution_env['connection'])
@@ -145,6 +163,16 @@ class Test:
                 print("Test: " + self.description + ";  FAILED")
             dt.assert_that(result['result_count'][0],
                            equal_to(0), self.description)
+        
+        if test_type == 'field_accuracy':
+            # ensure that the variable values are integers
+            result.iloc[:, 0] = result.iloc[:, 0].astype('float')
+            result.iloc[:, 1] = result.iloc[:, 1].astype('float')
+            ans = score(result.iloc[:,0].values, result.iloc[:,1].values)
+            # TODO this will need to be replaced by the proper dtest function
+            dt.assert_that(pd.DataFrame(data=[ans]), has_length(0), self.description)
+
+        dt.publish()
 
     def execute(self):
         start_time = time.time()

@@ -56,7 +56,3 @@ def score(test, truth):
     return Score(total_size, rmse, mean, abs_mean, median, std_dev, min_diff, max_diff, negative_pc,
                  positive_pc, exact_count, within_1_pc, within_5_pc, within_10_pc, over_10_pc,
                  sum_diff, sum_diff_pc)
-
-print(score(np.array([1, 1, 2]), np.array([1, 1, 2])))
-
-print(score(np.array([100, 50, 50]), np.array([50, 25, 25])))

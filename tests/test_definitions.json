@@ -73,6 +73,12 @@
             "test_type": "filter",
             "table": "table_name",
             "filter": "gender is null"
+        },
+        "accuracy-check" : {
+            "description" : "Compare the value of two fields",
+            "test_type" : "field_accuracy", 
+            "dataset" : "some-file",
+            "fields" : ["field1", "field1_b"]
         }
     }
 }
