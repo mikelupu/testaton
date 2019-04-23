@@ -1,4 +1,4 @@
-The json file `ecample_config/configuration.json` contains the configuration of Dtest, Spark, and the data elements and tests that need to be executed. 
+The json file `example_config/configuration.json` contains an example configuration of Dtest, Spark, and the data elements and tests that need to be executed. 
 
 There are 2 main types of connections:
 * Database connections
