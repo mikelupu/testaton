@@ -19,11 +19,11 @@ The tests define the tests that can be executed. Currently there are 2 types of 
 
 ## Requirements
 
-* Local installation of spark if `spark-config:master` is set to `local`
+Local installation of spark if `spark-config:master` is set to `local`
 
 ## Execution 
 
-* `testaton configuration-file.json`
+`testaton configuration-file.json`
 
 ## Configuration
 #### Dtest
