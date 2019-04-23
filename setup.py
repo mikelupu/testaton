@@ -4,7 +4,7 @@ readme = open('README.md').read().strip()
 
 setup(
     name='testaton',
-    version='0.1.1',
+    version='0.1.2',
     license='MIT',
     author='Michael Farrugia',
     author_email='mike.farrugia@gmail.com',
@@ -15,7 +15,7 @@ setup(
     install_requires=[
         # put packages here
         'six',
-        'pyspark',
+        'findspark',
         'pandas',
         'sqlalchemy',
         'dtest-framework',

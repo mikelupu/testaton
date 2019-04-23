@@ -1,36 +1,17 @@
+from hamcrest import has_length, equal_to
+import time
+import sqlalchemy as sql
+import pandas as pd
+
 from .generate_sql import generate_uniqueness_sql, generate_fk_sql, generate_filter_sql, generate_field_sql
 from .test_executor import run_in_db, run_in_spark
 from .common_functions import score
 
+import findspark
+findspark.init()
 
-from pyspark.sql import SparkSession
 from pyspark.sql import functions as sf
-
-import pandas as pd
-import sqlalchemy as sql
-
-import time
-
-from hamcrest import has_length, equal_to
-
-from dtest import Dtest
-
-# Setup the data testing framework
-connectionConfig = {
-    "host": "localhost",
-    "username": "guest",
-    "password": "guest",
-    "exchange": "logs",
-    "exchange_type": "fanout"
-}
-metadata = {
-    "description": "Execution of the test_definition.json",
-    "topic": "test.dtest",
-    "ruleSet": "Test a couple of files and tables",
-    "dataSet": "Plenty to test files"
-}
-
-dt = Dtest(connectionConfig, metadata)
+from pyspark.sql import SparkSession
 
 
 class Connection:
@@ -65,7 +46,8 @@ class Dataset:
                 dataset_definition['query']
             engine = sql.create_engine(self.connection.connection_string)
             if viewSql.find(';') != -1:
-                raise Exception("Semi-colons in sql statements are not supported")
+                raise Exception(
+                    "Semi-colons in sql statements are not supported")
             engine.execute(viewSql)
 
         if self.type[0:4] == 'file':
@@ -97,11 +79,13 @@ def get_execution_environment(dataset):
 class Test:
     """Defines a single test to be executed"""
 
-    def __init__(self, dataset_dict, test_definition):
+    def __init__(self, dataset_dict, test_definition, spark_config, dtest_obj):
         self.description = test_definition['description']
         self.type = test_definition['test_type']
         self.severity = test_definition['severity']
         self.definition = test_definition
+        self.spark_config = spark_config
+        self.dtest = dtest_obj
 
         if self.type == 'unique':
             self.dataset = [dataset_dict[test_definition['dataset']]]
@@ -144,7 +128,7 @@ class Test:
 
     # Execute a test in spark against a file
     def execute_file(self):
-        return run_in_spark(self.sql)
+        return run_in_spark(self.sql, self.spark_config)
 
     def process_result(self, test_type, result, duration):
         """Asserts the result of the test"""
@@ -155,25 +139,23 @@ class Test:
                 print("Test: " + self.description + ";    PASSED")
             else:
                 print("Test: " + self.description + ";    FAILED")
-            dt.assert_that(result, has_length(0), self.description, self.severity)
+            self.dtest.assert_that(result, has_length(0), self.description)
 
         if test_type == 'foreign_key' or test_type == 'filter':
             if result['result_count'][0] == 0:
                 print("Test: " + self.description + ";  PASSED")
             else:
                 print("Test: " + self.description + ";  FAILED")
-            dt.assert_that(result['result_count'][0],
-                           equal_to(0), self.description, self.severity)
-        
+            self.dtest.assert_that(result['result_count'][0],
+                                   equal_to(0), self.description)
+
         if test_type == 'field_accuracy':
             # ensure that the variable values are integers
             result.iloc[:, 0] = result.iloc[:, 0].astype('float')
             result.iloc[:, 1] = result.iloc[:, 1].astype('float')
-            ans = score(result.iloc[:,0].values, result.iloc[:,1].values)
-            # TODO this will need to be replaced by the proper dtest function
-            dt.assert_that(pd.DataFrame(data=[ans]), has_length(0), self.description, self.severity)
-
-        dt.publish()
+            ans = score(result.iloc[:, 0].values, result.iloc[:, 1].values)
+            self.dtest.publish_result(pd.DataFrame(
+                data=[ans]), self.description)
 
     def execute(self):
         start_time = time.time()
@@ -200,8 +182,9 @@ def process_datasets(connection_dict, dataset_definition):
     return datasets
 
 
-def process_tests(dataset_dict, tests_definition):
+def process_tests(dataset_dict, tests_definition, spark_config, dtest_obj):
     tests = {}
     for t_key in tests_definition.keys():
-        tests[t_key] = Test(dataset_dict, tests_definition[t_key])
+        tests[t_key] = Test(
+            dataset_dict, tests_definition[t_key], spark_config, dtest_obj)
     return tests
