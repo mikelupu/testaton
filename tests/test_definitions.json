@@ -52,13 +52,15 @@
             "description": "product_id unique check",
             "test_type": "unique",
             "table": "table_name",
-            "field": "product_id"
+            "field": "product_id",
+            "severity": "3"
         },
         "customer-id-uniqueness": {
             "description": "customer id uniqueness check",
             "test_type": "unique",
             "table": "table_name",
-            "field": "customer_id"
+            "field": "customer_id",
+            "severity": "3"
         },
         "customer-transaction-fk": {
             "description": "customer vs transaction test",
@@ -66,13 +68,15 @@
             "parent_table": "table_name",
             "parent_field": "customer_id",
             "child_table": "table_name",
-            "child_field": "transaction_id"
+            "child_field": "transaction_id",
+            "severity": "4"
         },
         "gender-null": {
             "description": "gender null",
             "test_type": "filter",
             "table": "table_name",
-            "filter": "gender is null"
+            "filter": "gender is null",
+            "severity": "2"
         },
         "accuracy-check" : {
             "description" : "Compare the value of two fields",
