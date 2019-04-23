@@ -2,14 +2,16 @@ from hamcrest import has_length, equal_to
 import time
 import sqlalchemy as sql
 import pandas as pd
-from pyspark.sql import functions as sf
-from pyspark.sql import SparkSession
+
 from .generate_sql import generate_uniqueness_sql, generate_fk_sql, generate_filter_sql, generate_field_sql
 from .test_executor import run_in_db, run_in_spark
 from .common_functions import score
 
 import findspark
 findspark.init()
+
+from pyspark.sql import functions as sf
+from pyspark.sql import SparkSession
 
 
 class Connection:
