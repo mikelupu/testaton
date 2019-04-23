@@ -13,6 +13,9 @@ The tests define the tests that can be executed. Currently there are 2 types of 
 * Uniqueness - check for the uniqueness of a field
 * Foreign Key constraint - check for a key not existing 
 
+## Installation
+
+`pip install testaton`
 
 ## Requirements
 
@@ -20,7 +23,7 @@ The tests define the tests that can be executed. Currently there are 2 types of 
 
 ## Execution 
 
-* `python testaton.py configuration-file.json`
+* `testaton configuration-file.json`
 
 ## Configuration
 #### Dtest
