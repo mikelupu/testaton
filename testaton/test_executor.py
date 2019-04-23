@@ -1,13 +1,10 @@
 import pandas as pd
 import sqlalchemy as sql
 import time
+import findspark
+findspark.init()
 
 from pyspark.sql import SparkSession
-from pyspark.sql import functions as sf
-
-
-import os
-os.environ['SPARK_LOCAL_IP'] = "127.0.0.1"
 
 
 def run_in_db(testSql, connection_string):
@@ -19,11 +16,11 @@ def run_in_db(testSql, connection_string):
     return result
 
 
-def run_in_spark(testSql):
+def run_in_spark(testSql, config):
     spark = SparkSession \
         .builder \
-        .master("local") \
-        .appName("TestingApp") \
+        .master(config['master']) \
+        .appName(config['app-name']) \
         .getOrCreate()
     result = spark.sql(testSql)
     return result.toPandas()

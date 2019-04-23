@@ -78,11 +78,31 @@
             "filter": "gender is null",
             "severity": "2"
         },
-        "accuracy-check" : {
-            "description" : "Compare the value of two fields",
-            "test_type" : "field_accuracy", 
-            "dataset" : "some-file",
-            "fields" : ["field1", "field1_b"]
+        "accuracy-check": {
+            "description": "Compare the value of two fields",
+            "test_type": "field_accuracy",
+            "dataset": "some-file",
+            "fields": [
+                "field1",
+                "field1_b"
+            ]
         }
+    },
+    "test-suite-metadata": {
+        "description": "Execution of the test_definition.json",
+        "topic": "test.dtest",
+        "ruleSet": "Test a couple of files and tables",
+        "dataSet": "Plenty to test files"
+    },
+    "message-broker-config": {
+        "host": "localhost",
+        "username": "guest",
+        "password": "guest",
+        "exchange": "logs",
+        "exchange_type": "fanout"
+    },
+    "spark-config": {
+        "master": "local",
+        "app-name": "TestingApp"
     }
 }
