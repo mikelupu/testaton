@@ -1,4 +1,4 @@
-The json file (test_definitions.json) contains the configuration of the data elements and the tests that need to be executed. 
+The json file `ecample_config/configuration.json` contains the configuration of Dtest, Spark, and the data elements and tests that need to be executed. 
 
 There are 2 main types of connections:
 * Database connections
@@ -14,16 +14,26 @@ The tests define the tests that can be executed. Currently there are 2 types of 
 * Foreign Key constraint - check for a key not existing 
 
 
-## Requirements for the current test file
+## Requirements
 
-* Local installation of spark
-* Postgres and table setup
-* dtest package
+* Local installation of spark if `spark-config:master` is set to `local`
 
 ## Execution 
 
-* `python testaton.py /tests/test_definitions.json`
+* `python testaton.py configuration-file.json`
 
+## Configuration
+#### Dtest
+See [Dtest](https://github.com/sjensen85/dtest) documentation.
+`test-suite-metadata` is translated to the `metadata` argument
+`message-broker-config` is translated to the `connectionConfig` argument
+
+#### Spark
+The configuration values for Spark are the master node and the application name. These translate to the corresponding arguments needed to build a SparkSession. More information can be found in the official [SparkSession documentation](https://spark.apache.org/docs/2.1.0/api/python/pyspark.sql.html?highlight=sparksession#pyspark.sql.SparkSession.Builder).
+
+The `master` configuration variable sets the Spark master URL to connect to, such as “local” to run locally, “local[4]” to run locally with 4 cores, or “spark://ip-of-master:7077” to run on a Spark standalone cluster.
+
+The `app-name` configuration variable sets a name for the application, which will be shown in the Spark web UI.
 
 ## TODO
 
